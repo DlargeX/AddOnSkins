@@ -11,7 +11,7 @@ local floor, print, format, strlower, strmatch, strlen = floor, print, format, s
 local sort, tinsert = sort, tinsert
 
 local geterrorhandler = geterrorhandler
-local IsAddOnLoaded, C_Timer = IsAddOnLoaded, C_Timer
+local IsAddOnLoaded, C_Timer = C_AddOns.IsAddOnLoaded, C_Timer
 
 AS.SkinErrors = {}
 
@@ -60,20 +60,6 @@ function AS:GetClassColor(class)
 	end
 
 	return color
-end
-
-function AS:OrderedPairs(t, f)
-	local a = {}
-	for n in pairs(t) do tinsert(a, n) end
-	sort(a, f)
-	local i = 0
-	local iter = function()
-		i = i + 1
-		if a[i] == nil then return nil
-			else return a[i], t[a[i]]
-		end
-	end
-	return iter
 end
 
 function AS:Delay(delay, func)
@@ -177,7 +163,7 @@ local function errorhandler(err)
 end
 
 function AS:CallSkin(addonName, func, event, ...)
-	if (AS:CheckOption('SkinDebug')) then
+	if AS.Debug then
 		local args = {...}
 		xpcall(function() func(self, event, unpack(args)) end, errorhandler)
 	else
@@ -236,7 +222,7 @@ function AS:StartUp(event, ...)
 		AS:SecureHook(_G.ElvUI[1], 'UpdateMedia')
 	end
 
-	if not AS:CheckOption('SkinDebug') then
+	if not AS.Debug then
 		for Version, SkinTable in pairs(_G.AddOnSkinsDS) do
 			if Version == AS.Version or Version < AS.Version then
 				if Version < AS.Version then
@@ -266,7 +252,7 @@ function AS:StartUp(event, ...)
 		AS:Print(format("Version: |cFF1784D1%s|r Loaded!", AS.Version))
 	end
 
-	if not AS:CheckOption('SkinDebug') and AS.FoundError then
+	if not AS.Debug and AS.FoundError then
 		AS:Print(format(L["%s: There was an error in the following skin(s): %s"], AS.Version, table.concat(AS.SkinErrors, ", ")))
 		AS:Print(format(L["Please report this to Azilroka immediately @ %s"], AS:PrintURL(AS.TicketTracker)))
 	end
